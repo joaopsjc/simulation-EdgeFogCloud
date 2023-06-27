@@ -1,0 +1,13 @@
+1 - Import Siafu subfolder as Maven project in Eclipse
+
+2 - Run "Maven install"
+
+3 - Import Siafu-<name> simulation subfolder as Maven project in Eclipse
+
+4 - Run "Maven install".
+
+4 - If any repository error happens, use the files into "1.0.6-SNAPSHOT" folder and copy it to your repository folder.
+
+5 - Create your simulation and run "Maven install"
+
+6 - Load it in the Siafu.
