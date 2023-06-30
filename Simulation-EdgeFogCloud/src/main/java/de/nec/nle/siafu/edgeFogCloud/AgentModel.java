@@ -22,9 +22,10 @@ package de.nec.nle.siafu.edgeFogCloud;
 import static de.nec.nle.siafu.edgeFogCloud.Constants.DEFAULT_SPEED;
 import static de.nec.nle.siafu.edgeFogCloud.Constants.POPULATION;
 import static de.nec.nle.siafu.edgeFogCloud.Constants.Fields.ACTIVITY;
-import static de.nec.nle.siafu.edgeFogCloud.Constants.Fields.SERVER;
+import static de.nec.nle.siafu.edgeFogCloud.Constants.Fields.PDATA;
+import static de.nec.nle.siafu.edgeFogCloud.Constants.Fields.ORIGIN;
 import static de.nec.nle.siafu.edgeFogCloud.Constants.Fields.TEMPORARY_DESTINATION;
-import static de.nec.nle.siafu.edgeFogCloud.Constants.Fields.TYPE;
+import static de.nec.nle.siafu.edgeFogCloud.Constants.Fields.SENDER;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -90,30 +91,33 @@ public class AgentModel extends BaseAgentModel {
 	 * This method creates all the workers for the office simulation.
 	 * 
 	 * @param packages the array where you need to put your created agents
-	 * @param type the type of package (reduced vs original)
-	 * @param serverType the type of server of origin (edge vs fog) 
+	 * @param sender the the application that sent the package (1 vs 2)
+	 * @param origin the type of place of origin (edge vs house) 
 	 */
 	private void createPackage(final ArrayList<Agent> packages,
-			final String type, final String serverType) {
-		Iterator<Place> serverIt;
+			final String sender, final String origin) {
+		Iterator<Place> originIt;
 		try {
-			serverIt = world.getPlacesOfType(serverType).iterator();
+			originIt = world.getPlacesOfType(origin).iterator();
 		} catch (PlaceTypeUndefinedException e) {
-			throw new RuntimeException("No staff desks defined", e);
+			throw new RuntimeException("No houses or edge servers defined", e);
 		}
 
 		int i = 0;
-		while (serverIt.hasNext()) {
-			Place server = serverIt.next();
-
-			Agent a =
-					new Agent(type + "-" + i, cloudServer.getPos(), "HumanBlue",
-							world);
-			a.setVisible(false);
+		while (originIt.hasNext()) {
+			Place placeOfOrigin = originIt.next();
 			String packageData;
 
-			a.set(TYPE, new Text(type));
-			a.set(SERVER, server);
+			Agent a =
+					new Agent(sender + "-" + i, cloudServer.getPos(), "HumanBlue",
+							world);
+			a.setVisible(false);
+			
+			packageData = "x,x,x";
+			
+			a.set(SENDER, new Text(sender));
+			a.set(PDATA, new Text(packageData));
+			a.set(ORIGIN, placeOfOrigin);
 			a.set(ACTIVITY, Activity.ONHOLD);
 			a.set(TEMPORARY_DESTINATION, new Text("None"));
 			a.setSpeed(DEFAULT_SPEED);
@@ -155,6 +159,14 @@ public class AgentModel extends BaseAgentModel {
 			switch ((Activity) a.get(ACTIVITY)) {
 			case ONHOLD:
 				break;
+			case GOING_2_CLOUD:
+				break;
+			case GOING_2_FOG:
+				break;
+			case GOING_2_EDGE:
+				break;
+			case INVISIBLE:
+				break;
 			default:
 				throw new RuntimeException("Unknown Activity");
 			}
@@ -170,8 +182,18 @@ public class AgentModel extends BaseAgentModel {
 	 * Send the agent to a fog server.
 	 * 
 	 */
-	private void goToFog(final Agent a, Place server) {
-		a.setDestination(server);
+	private void goToEdge(final Agent a, Place edgeServer) {
+		a.setDestination(edgeServer);
+		a.set(ACTIVITY, Activity.GOING_2_EDGE);
+	}
+
+
+	/**
+	 * Send the agent to a fog server.
+	 * 
+	 */
+	private void goToFog(final Agent a, Place fogServer) {
+		a.setDestination(fogServer);
 		a.set(ACTIVITY, Activity.GOING_2_FOG);
 	}
 
@@ -182,6 +204,24 @@ public class AgentModel extends BaseAgentModel {
 	private void goToCloud(final Agent a) {
 		a.setDestination(cloudServer);
 		a.set(ACTIVITY, Activity.GOING_2_CLOUD);
+	}
+	
+	/**
+	 * Send the agent back to origin.
+	 * 
+	 */
+	private void sendToOrigin(final Agent a) {
+		Place origin = (Place) a.get(ORIGIN);
+		a.setPos(origin.getPos());
+		a.setVisible(false);
+		a.set(ACTIVITY, Activity.INVISIBLE);
+	}
+	/**
+	 * Set the agent's new origin.
+	 * 
+	 */
+	private void setOrigin(final Agent a, Place origin) {
+		a.set(ORIGIN, origin);
 	}
 	
 	/**

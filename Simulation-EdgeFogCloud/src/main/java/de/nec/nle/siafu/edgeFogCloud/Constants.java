@@ -52,12 +52,15 @@ public class Constants {
 	static class Fields {
 		/** The agent's current activity. */
 		public static final String ACTIVITY = "Activity";
+		
+		/** The data being transported by the agent. */
+		public static final String PDATA = "Package Data";
 
-		/** Whether the person's staff or student. */
-		public static final String TYPE = "Type";
+		/** Application that sent the data. */
+		public static final String SENDER = "Application";
 
-		/** The type of desk. */
-		public static final String SERVER = "Server";
+		/** The sender of the data. */
+		public static final String ORIGIN = "Place of Origin";
 
 		/** A temporary dfestination. */
 		public static final String TEMPORARY_DESTINATION =
@@ -74,9 +77,11 @@ public class Constants {
 		ONHOLD("On hold"),
 		/** The agent's reached at its destination and set to invisible. */
 		INVISIBLE("Invisible"),
+		/** The agent is going to a edge server. */
+		GOING_2_EDGE("Going2Edge"),
 		/** The agent is going to a fog server. */
 		GOING_2_FOG("Going2Fog"),
-		/** The agent is going to a cloud server. */
+		/** The agent is going to the cloud server. */
 		GOING_2_CLOUD("Going2Cloud");
 
 		/** Human readable description of the activity. */
